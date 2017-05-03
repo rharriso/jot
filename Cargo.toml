@@ -1,0 +1,8 @@
+[package]
+name = "note-taker"
+version = "0.1.0"
+authors = ["Ross Harrison <rtharrison86@gmail.com>"]
+
+[dependencies]
+bson = "0.7.0"
+mongodb = "0.2.7"
