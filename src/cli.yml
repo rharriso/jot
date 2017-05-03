@@ -17,7 +17,7 @@ subcommands:
     - list:
         about: list note entries
         args:
-            - tag:
+            - tags:
                 long: tags
                 short: t
                 takes_value: true

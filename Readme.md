@@ -20,6 +20,35 @@ SUBCOMMANDS:
     list    list note entries
 ```
 
+* `jot --file /path/to/note/file`
+* `jot "Add not with this text"`
+
+
+# List Subcommand  
+
+```
+list note entries
+
+USAGE:
+    jot list [OPTIONS] [QUERY]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -t, --tags <tag>    filter by tags
+
+ARGS:
+    <QUERY>    Search the list by string
+
+```
+
+Examples:
+
+* `jot list --tags=one,two,three`
+* `jot list "Search for this text"`
+
 ### Commands
 
 * *list* - show notes
