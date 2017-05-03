@@ -19,11 +19,20 @@ fn main () {
 
         let tag_str = matches.value_of("tags").unwrap_or("no tags");
         println!("tags: {}", tag_str);
-    } else {
+
+        if let Some(queryString) = matches.value_of("QUERY") {
+            println!("query by: {}", queryString);
+        }
+
+    } else  {
         println!("adding a note");
 
         if let Some(fileInput) = matches.value_of("file") {
             println!("File input: {}", fileInput);
+        }
+
+        if let Some(noteContentStr) = matches.value_of("NOTE_CONTENT") {
+            println!("noteContent: {}", noteContentStr);
         }
     }
 

@@ -10,6 +10,8 @@ args:
         value_name: FILE
         help: create note from input file
         takes_value: true
+    - NOTE_CONTENT:
+        help: enter the note content directly
 
 subcommands:
     - list:
@@ -20,4 +22,5 @@ subcommands:
                 short: t
                 takes_value: true
                 help: filter by tags
-
+            - QUERY:
+                help: Search the list by string
