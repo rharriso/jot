@@ -2,6 +2,16 @@
 
 Note taking app.
 
+## Usage
+
+```
+taker [command] [options]
+```
+
+### Commands
+
+* *list* - show notes
+
 # Goals
 
 1. Take input from:

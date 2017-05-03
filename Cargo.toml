@@ -1,8 +1,9 @@
 [package]
-name = "note-taker"
-version = "0.1.0"
+name = "jot"
+version = "1.0.0"
 authors = ["Ross Harrison <rtharrison86@gmail.com>"]
 
 [dependencies]
+clap = {version = "2.19.0", features = ["yaml"]}
 bson = "0.7.0"
 mongodb = "0.2.7"

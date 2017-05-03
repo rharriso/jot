@@ -1,0 +1,23 @@
+name: jot
+version: "1.0"
+author: Ross Harrison. <rtharrison86@gmail.com>
+about: Quickly take notes from the command line
+
+args:
+    - file:
+        short: f
+        long: file
+        value_name: FILE
+        help: create note from input file
+        takes_value: true
+
+subcommands:
+    - list:
+        about: list note entries
+        args:
+            - tag:
+                long: tags
+                short: t
+                takes_value: true
+                help: filter by tags
+
