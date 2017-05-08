@@ -4,10 +4,13 @@
 #[macro_use(load_yaml)]
 extern crate clap;
 
+mod note;
+
 //use bson::Bson;
 //use mongodb::{ Client, ThreadedClient};
 //use mongodb::db::ThreadedDatabase;
 use clap::{App};
+use note::Note;
 
 
 fn main () {
@@ -32,7 +35,8 @@ fn main () {
         }
 
         if let Some(noteContentStr) = matches.value_of("NOTE_CONTENT") {
-            println!("noteContent: {}", noteContentStr);
+            let note = Note::new(noteContentStr);
+            println!("noteContent: {:?}", note);
         }
     }
 
