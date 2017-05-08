@@ -5,11 +5,18 @@ version = "1.0.0"
 
 [dependencies]
 bson = "0.7.0"
-chrono = "0.3.1"
-ejdb = "0.3.0"
 mongodb = "0.2.7"
-uuid = { version = "0.5", features = ["v4"] }
+serde = "1.0.2"
+serde_derive = "1.0.2"
+
+[dependencies.chrono]
+features = ["serde"]
+version = "0.3.1"
 
 [dependencies.clap]
 features = ["yaml"]
 version = "2.19.0"
+
+[dependencies.uuid]
+features = ["v4", "serde"]
+version = "0.5"
