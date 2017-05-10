@@ -52,13 +52,17 @@ fn main () {
 
         // get input from editor
         } else if let Ok(editor) = std::env::var("EDITOR") {
+            // editor writes to scratch
             Command::new(editor)
                 .arg("/tmp/jot-scratch")
                 .spawn()
                 .expect("failed to get $EDITOR output")
                 .wait();
 
-            let mut read_command = Command::new("cat")
+            // read and delete scratch space scratch
+            let mut read_command = Command::new("sh")
+                .arg("-c")
+                .arg("cat /tmp/jot-scratch && rm /tmp/jot-scratch")
                 .arg("/tmp/jot-scratch")
                 .stdout(Stdio::piped())
                 .spawn()
@@ -68,12 +72,6 @@ fn main () {
             let note_content = String::from_utf8(output.stdout)
                 .expect("bad $EDITOR result.");
             save_note(Note::new(&note_content.trim()));
-
-            let mut read_command = Command::new("rm")
-                .arg("/tmp/jot-scratch")
-                .spawn()
-                .expect("couldn't remove the scratch")
-                .wait();
         } else {
             panic!("Not input method given, failing");
         }
