@@ -4,14 +4,10 @@ name = "jot"
 version = "1.0.0"
 
 [dependencies]
-bson = "0.7.0"
-mongodb = "0.2.7"
-serde = "1.0.2"
-serde_derive = "1.0.2"
-
-[dependencies.chrono]
-features = ["serde"]
-version = "0.3.1"
+diesel = { version = "0.12.0", features = ["sqlite"] }
+diesel_codegen = { version = "0.12.0", features = ["sqlite"] }
+dotenv = "0.10.0"
+libsqlite3-sys = { version = "=0.7.1", optional = true }
 
 [dependencies.clap]
 features = ["yaml"]

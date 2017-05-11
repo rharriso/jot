@@ -1,30 +1,61 @@
-extern crate bson;
-#[macro_use]
-extern crate serde_derive;
+#[macro_use(load_yaml)] extern crate clap;
 
-extern crate mongodb;
-#[macro_use(load_yaml)]
-extern crate clap;
+#[macro_use] extern crate diesel;
+#[macro_use] extern crate diesel_codegen;
+extern crate dotenv;
 
-mod note;
+pub mod note;
+pub mod schema;
 
-use mongodb::{ Client, ThreadedClient};
-use mongodb::db::ThreadedDatabase;
-use clap::{App};
-use note::Note;
-use std::io::{self, Read};
+use diesel::prelude::*;
+use diesel::sqlite::SqliteConnection;
+
+use dotenv::dotenv;
+use std::env;
+
+use note::*;
 use std::process::{Command, Stdio};
+use clap::{App};
 
 // save a new note
-fn save_note (note: Note) {
+fn save_note (note: NewNote) {
+    use schema::notes::dsl::*;
+
+    let database_url = env::var("DATABASE_URL")
+        .expect("DATABASE_URL must be set");
+    let conn = SqliteConnection::establish(&database_url)
+        .expect(&format!("Error connecting to {}", database_url));
+
+    diesel::insert(&note)
+        .into(schema::notes::table)
+        .execute(&conn)
+        .expect("Error saving note");
+
+    // list notes
+    let results = notes
+        .limit(5)
+        .load::<Note>(&conn)
+        .expect("Error loading notes");
+
+    for note in results {
+        println!("{}", note.uuid);
+        println!("{}", note.content);
+        println!("\n");
+    }
+
+    /*
     let client = Client::connect("localhost", 27017)
         .expect("Failed to initialize client");
     let collection = client.db("jot").collection("notes");
     collection.insert_one(note.to_doc(), None).expect("couldn't insert");
     println!("note saved: {:?}", note.to_doc());
+    */
 }
 
+
 fn main () {
+    dotenv().ok();
+
     let yaml = load_yaml!("cli.yml");
     let matches = App::from_yaml(yaml).get_matches();
 
@@ -48,19 +79,19 @@ fn main () {
 
         // get input from note content
         else if let Some(note_content) = matches.value_of("NOTE_CONTENT") {
-            save_note(Note::new(note_content));
+            save_note(NewNote::new(note_content));
 
         // get input from editor
         } else if let Ok(editor) = std::env::var("EDITOR") {
             // editor writes to scratch
-            Command::new(editor)
+            let _ = Command::new(editor)
                 .arg("/tmp/jot-scratch")
                 .spawn()
                 .expect("failed to get $EDITOR output")
                 .wait();
 
             // read and delete scratch space scratch
-            let mut read_command = Command::new("sh")
+            let read_command = Command::new("sh")
                 .arg("-c")
                 .arg("cat /tmp/jot-scratch && rm /tmp/jot-scratch")
                 .arg("/tmp/jot-scratch")
@@ -71,7 +102,7 @@ fn main () {
 
             let note_content = String::from_utf8(output.stdout)
                 .expect("bad $EDITOR result.");
-            save_note(Note::new(&note_content.trim()));
+            save_note(NewNote::new(&note_content.trim()));
         } else {
             panic!("Not input method given, failing");
         }
