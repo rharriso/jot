@@ -1,5 +1,5 @@
 [root]
-name = "jot"
+name = "jot-down"
 version = "1.0.0"
 dependencies = [
  "clap 2.24.1 (registry+https://github.com/rust-lang/crates.io-index)",
