@@ -1,4 +1,4 @@
-# Taker 
+# Jot 
 
 Note taking app.
 
@@ -6,7 +6,7 @@ Note taking app.
 
 ```
 USAGE:
-    jot [OPTIONS] [SUBCOMMAND]
+    jot-down [OPTIONS] [SUBCOMMAND]
 
 FLAGS:
     -h, --help       Prints help information
@@ -20,8 +20,8 @@ SUBCOMMANDS:
     list    list note entries
 ```
 
-* `jot --file /path/to/note/file`
-* `jot "Add not with this text"`
+* `jot-down --file /path/to/note/file`
+* `jot-down "Add not with this text"`
 
 
 # List Subcommand  
@@ -30,7 +30,7 @@ SUBCOMMANDS:
 list note entries
 
 USAGE:
-    jot list [OPTIONS] [QUERY]
+    jot-down list [OPTIONS] [QUERY]
 
 FLAGS:
     -h, --help       Prints help information
@@ -46,8 +46,8 @@ ARGS:
 
 Examples:
 
-* `jot list --tags=one,two,three`
-* `jot list "Search for this text"`
+* `jot-down list --tags=one,two,three`
+* `jot-down list "Search for this text"`
 
 ### Commands
 
