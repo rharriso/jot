@@ -14,6 +14,8 @@ args:
         help: enter the note content directly
 
 subcommands:
+    - init:
+        about: initialize the database
     - list:
         about: list note entries
         args:

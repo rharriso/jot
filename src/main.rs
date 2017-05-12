@@ -1,65 +1,57 @@
 #[macro_use(load_yaml)] extern crate clap;
+extern crate rusqlite;
 
-#[macro_use] extern crate diesel;
-#[macro_use] extern crate diesel_codegen;
-extern crate dotenv;
+mod note;
 
-pub mod note;
-pub mod schema;
-
-use diesel::prelude::*;
-use diesel::sqlite::SqliteConnection;
-
-use dotenv::dotenv;
 use std::env;
+use std::path::Path;
+use std::fs;
 
-use note::*;
+use note::Note;
 use std::process::{Command, Stdio};
 use clap::{App};
+use rusqlite::Connection;
 
 // save a new note
-fn save_note (note: NewNote) {
-    use schema::notes::dsl::*;
+fn save_note (note: Note) {
+    let mut db_file = env::home_dir().expect("couln't get home dir");
+    db_file.push(".jot");
+    db_file.push("db.sql");
+    let conn = Connection::open(db_file).expect("unable to create db.");
 
-    let database_url = env::var("DATABASE_URL")
-        .expect("DATABASE_URL must be set");
-    let conn = SqliteConnection::establish(&database_url)
-        .expect(&format!("Error connecting to {}", database_url));
+    conn.execute("INSERT INTO notes (content, uuid)
+                  VALUES (?1, ?2)",
+                 &[&note.content, &note.uuid]).expect("Couldn't insert note.");
+}
 
-    diesel::insert(&note)
-        .into(schema::notes::table)
-        .execute(&conn)
-        .expect("Error saving note");
+fn init () {
+    let mut jot_dir = env::home_dir().expect("couln't get home dir");
+    jot_dir.push(".jot");
 
-    // list notes
-    let results = notes
-        .limit(5)
-        .load::<Note>(&conn)
-        .expect("Error loading notes");
+    // create the dir
+    fs::create_dir(jot_dir.clone());
 
-    for note in results {
-        println!("{}", note.uuid);
-        println!("{}", note.content);
-        println!("\n");
-    }
+    let mut db_file = jot_dir;
+    db_file.push("db.sql");
+    let conn = Connection::open(db_file).expect("unable to create db.");
 
-    /*
-    let client = Client::connect("localhost", 27017)
-        .expect("Failed to initialize client");
-    let collection = client.db("jot").collection("notes");
-    collection.insert_one(note.to_doc(), None).expect("couldn't insert");
-    println!("note saved: {:?}", note.to_doc());
-    */
+    conn.execute("CREATE TABLE notes (
+        id      INTEGER PRIMARY KEY NOT NULL,
+        content TEXT NOT NULL,
+        uuid    TEXT NOT NULL
+    )", &[]).expect("couldn't create table");
 }
 
 
 fn main () {
-    dotenv().ok();
-
     let yaml = load_yaml!("cli.yml");
     let matches = App::from_yaml(yaml).get_matches();
 
-    if let Some(matches) = matches.subcommand_matches("list") {
+    if let Some(matches) = matches.subcommand_matches("init") {
+        println!("Creating table");
+        init();
+
+    } else if let Some(matches) = matches.subcommand_matches("list") {
         println!("Printing lists");
 
         let tag_str = matches.value_of("tags").unwrap_or("no tags");
@@ -79,7 +71,7 @@ fn main () {
 
         // get input from note content
         else if let Some(note_content) = matches.value_of("NOTE_CONTENT") {
-            save_note(NewNote::new(note_content));
+            save_note(Note::new(note_content));
 
         // get input from editor
         } else if let Ok(editor) = std::env::var("EDITOR") {
@@ -102,7 +94,7 @@ fn main () {
 
             let note_content = String::from_utf8(output.stdout)
                 .expect("bad $EDITOR result.");
-            save_note(NewNote::new(&note_content.trim()));
+            save_note(Note::new(&note_content.trim()));
         } else {
             panic!("Not input method given, failing");
         }

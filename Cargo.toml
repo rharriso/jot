@@ -4,10 +4,7 @@ name = "jot-down"
 version = "1.0.0"
 
 [dependencies]
-diesel = { version = "0.12.0", features = ["sqlite"] }
-diesel_codegen = { version = "0.12.0", features = ["sqlite"] }
-dotenv = "0.10.0"
-libsqlite3-sys = { version = "=0.7.1", optional = true }
+rusqlite = "0.11.0"
 
 [dependencies.clap]
 features = ["yaml"]
