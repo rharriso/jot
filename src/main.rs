@@ -1,27 +1,56 @@
 #[macro_use(load_yaml)] extern crate clap;
 extern crate rusqlite;
+extern crate time;
 
 mod note;
 
 use std::env;
 use std::path::Path;
 use std::fs;
+use std::vec::Vec;
 
 use note::Note;
 use std::process::{Command, Stdio};
 use clap::{App};
 use rusqlite::Connection;
+use time::strftime;
 
-// save a new note
-fn save_note (note: Note) {
+fn db_conn() -> rusqlite::Connection {
     let mut db_file = env::home_dir().expect("couln't get home dir");
     db_file.push(".jot");
     db_file.push("db.sql");
-    let conn = Connection::open(db_file).expect("unable to create db.");
+    return Connection::open(db_file).expect("unable to create db.");
+}
 
-    conn.execute("INSERT INTO notes (content, uuid)
-                  VALUES (?1, ?2)",
-                 &[&note.content, &note.uuid]).expect("Couldn't insert note.");
+fn get_notes () -> Vec<Note> {
+    let mut notes = Vec::new();
+    let conn = db_conn();
+
+    let mut query = conn.prepare("SELECT uuid, content, created_at FROM notes").unwrap();
+
+    let note_iter = query.query_map(&[], |row| {
+        Note{
+           uuid: row.get(0),
+           content: row.get(1),
+           created_at: row.get(2)
+        }
+    }).unwrap();
+
+    for note in note_iter {
+        notes.push(note.unwrap());
+    }
+
+    return notes;
+}
+
+// save a new note
+fn save_note (note: Note) {
+    let conn = db_conn();
+
+    conn.execute("INSERT INTO notes (content, uuid, created_at)
+                  VALUES (?1, ?2, ?3)",
+                 &[&note.content, &note.uuid, &note.created_at]
+    ).expect("Couldn't insert note.");
 }
 
 fn init () {
@@ -36,9 +65,10 @@ fn init () {
     let conn = Connection::open(db_file).expect("unable to create db.");
 
     conn.execute("CREATE TABLE notes (
-        id      INTEGER PRIMARY KEY NOT NULL,
-        content TEXT NOT NULL,
-        uuid    TEXT NOT NULL
+        id          INTEGER PRIMARY KEY NOT NULL,
+        content     TEXT NOT NULL,
+        created_at  TEXT NOT NULL,
+        uuid        TEXT NOT NULL
     )", &[]).expect("couldn't create table");
 }
 
@@ -51,19 +81,19 @@ fn main () {
         println!("Creating table");
         init();
 
+
     } else if let Some(matches) = matches.subcommand_matches("list") {
-        println!("Printing lists");
-
-        let tag_str = matches.value_of("tags").unwrap_or("no tags");
-        println!("tags: {}", tag_str);
-
-        if let Some(query_string) = matches.value_of("QUERY") {
-            println!("query by: {}", query_string);
+        for note in get_notes() {
+            println!("\n");
+            println!("===================================");
+            println!("{}", note.created_at.sec);
+            println!("===================================");
+            println!("{}", note.content);
+            println!("\n");
         }
 
-    } else  {
-        println!("adding a note");
 
+    } else  {
         // get input from file
         if let Some(file_input) = matches.value_of("file") {
             println!("File input: {}", file_input);
