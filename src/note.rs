@@ -1,13 +1,12 @@
 extern crate uuid;
-extern crate time;
 
 use self::uuid::Uuid;
-use self::time::Timespec;
+use chrono::prelude::*;
 
 
 pub struct Note {
     pub content: String,
-    pub created_at: Timespec,
+    pub created_at: NaiveDateTime,
     pub uuid: String,
 }
 
@@ -16,7 +15,7 @@ impl Note {
     pub fn new(content: &str) -> Note {
         return Note {
             content: content.to_string(),
-            created_at: time::get_time(),
+            created_at: UTC::now().naive_utc(),
             uuid: Uuid::new_v4().to_string()
         }
     }

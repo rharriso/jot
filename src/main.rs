@@ -1,6 +1,6 @@
 #[macro_use(load_yaml)] extern crate clap;
 extern crate rusqlite;
-extern crate time;
+extern crate chrono;
 
 mod note;
 
@@ -12,8 +12,8 @@ use std::vec::Vec;
 use note::Note;
 use std::process::{Command, Stdio};
 use clap::{App};
+use chrono::prelude::*;
 use rusqlite::Connection;
-use time::strftime;
 
 fn db_conn() -> rusqlite::Connection {
     let mut db_file = env::home_dir().expect("couln't get home dir");
@@ -32,7 +32,7 @@ fn get_notes () -> Vec<Note> {
         Note{
            uuid: row.get(0),
            content: row.get(1),
-           created_at: row.get(2)
+           created_at: NaiveDateTime::from_timestamp(row.get(2), 0)
         }
     }).unwrap();
 
@@ -49,7 +49,7 @@ fn save_note (note: Note) {
 
     conn.execute("INSERT INTO notes (content, uuid, created_at)
                   VALUES (?1, ?2, ?3)",
-                 &[&note.content, &note.uuid, &note.created_at]
+                 &[&note.content, &note.uuid, &note.created_at.timestamp()]
     ).expect("Couldn't insert note.");
 }
 
@@ -86,7 +86,7 @@ fn main () {
         for note in get_notes() {
             println!("\n");
             println!("===================================");
-            println!("{}", note.created_at.sec);
+            println!("{}", note.created_at);
             println!("===================================");
             println!("{}", note.content);
             println!("\n");
