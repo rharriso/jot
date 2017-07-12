@@ -1,5 +1,5 @@
 [root]
-name = "jot-down"
+name = "jd"
 version = "1.0.0"
 dependencies = [
  "chrono 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",

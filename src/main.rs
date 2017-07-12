@@ -29,6 +29,14 @@ fn get_notes () -> Vec<Note> {
     let mut query = conn.prepare("SELECT uuid, content, created_at FROM notes").unwrap();
 
     let note_iter = query.query_map(&[], |row| {
+        println!("Collumn Count {}", row.column_count());
+        let zero: String = row.get(0);
+        let one: String = row.get(1);
+        let two: String = row.get(2);
+        println!("zero {:?}", zero);
+        println!("one {:?}", one);
+        println!("two {:?}", two);
+
         Note{
            uuid: row.get(0),
            content: row.get(1),
