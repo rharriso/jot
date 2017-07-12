@@ -1,6 +1,6 @@
 [package]
 authors = ["Ross Harrison <rtharrison86@gmail.com>"]
-name = "jot-down"
+name = "jd"
 version = "1.0.0"
 
 [dependencies]
